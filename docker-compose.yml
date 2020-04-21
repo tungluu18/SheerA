@@ -1,0 +1,8 @@
+services:
+  tracker:
+    build: ./tracker-server
+
+  ui:
+    build: ./ui
+
+networks:
