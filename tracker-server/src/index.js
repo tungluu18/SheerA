@@ -1,7 +1,13 @@
-import app from './app';
+import http from 'http';
+
+import app from 'app';
+import io from 'socket';
+
+const server = http.createServer(app);
+io.listen(server);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Tracker server is currently listening on port ${PORT}...`);
 })

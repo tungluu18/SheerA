@@ -11,6 +11,7 @@
       {
         "alias": {
           "app": "./src/app",
+          "socket": "./src/socket",
           "index": "./src/index",
           "routes": "./src/routes"
         }
