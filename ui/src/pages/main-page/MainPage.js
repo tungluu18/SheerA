@@ -1,31 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import socket from 'services/socket';
-import RemoteUser from 'containers/RemoteUser';
+import RemoteUser from 'containers/remote-user-call/RemoteUserCall';
+import { useRoomContext } from 'contexts/room-context';
 
 const MainPage = () => {
-  const [users, setUsers] = useState([]);
-  const [localStream, setLocalStream] = useState();
-
+  const { users } = useRoomContext();
   const videoRef = useRef();
-
-  const addUser = ({ users: newUsers }) =>
-    setUsers([...users, ...newUsers]);
-
-  const rmUser = ({ socketId }) =>
-    setUsers(users.filter(e => e !== socketId));
-
-  const setupSocket = () => {
-    socket.on("update-user-list", addUser);
-    socket.on("remove-user", rmUser);
-
-    return () => {
-      socket.off("update-user-list");
-      socket.off("remove-user");
-    }
-  }
-
-  useEffect(setupSocket, [users]);
+  const [localStream, setLocalStream] = useState();
 
   const handleVideoStream = stream => {
     console.log("camera", stream);
@@ -33,18 +15,20 @@ const MainPage = () => {
     setLocalStream(stream);
   }
 
-
   const handleVideoError = error =>
     console.log("error", error);
 
-  useEffect(() => {
-    console.log("watching you bitch...");
-    navigator.getUserMedia(
-      { video: true, audio: false },
-      handleVideoStream,
-      handleVideoError
-    );
-  }, []);
+  useEffect(
+    () => {
+      console.log("watching you ...");
+      navigator.getUserMedia(
+        { video: true, audio: false },
+        handleVideoStream,
+        handleVideoError
+      );
+    },
+    []
+  );
 
   return (
     <>
@@ -66,7 +50,6 @@ const MainPage = () => {
       </div>
     </>
   );
-
 }
 
 export default MainPage;
