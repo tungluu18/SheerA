@@ -13,7 +13,6 @@ const RTC_CONFIGURATION = {
 
 const PeerConnectionContext = React.createContext();
 
-
 const PeerConnectionProvider = ({ children }) => {
   const [remotePeerId, setRemotePeerId] = useState();
   const [peerConnection] = useState(
@@ -49,12 +48,14 @@ const PeerConnectionProvider = ({ children }) => {
   useEffect(
     () => {
       socket.on(ANSWER_MADE, async ({ from, answer }) => {
+        console.log("ANSWER_MADE");
         await peerConnection.setRemoteDescription(
           new RTCSessionDescription(answer)
         );
       });
 
       socket.on(CALL_MADE, async ({ offer, from }) => {
+        console.log("CALL_MADE");
         await peerConnection.setRemoteDescription(offer);
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(
@@ -81,7 +82,7 @@ const PeerConnectionProvider = ({ children }) => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    []
+    [peerConnection]
   );
 
   return (
