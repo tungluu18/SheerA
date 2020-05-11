@@ -14,6 +14,11 @@ const handleRequestVideo = (socket, { to }) => {
   socket.to(to).emit("seed-video", { to: socket.id });
 }
 
+const handleSendSignal = (socket, { from, to, signal }) => {
+  console.log("send-signal", { from, to, signal });
+  socket.to(to).emit("receive-signal", { from, to, signal });
+}
+
 export default {
   use: (socket) => {
     socket.on("make-call", (data) =>
@@ -30,6 +35,10 @@ export default {
 
     socket.on("request-video", (data) =>
       handleRequestVideo(socket, data)
+    );
+
+    socket.on("send-signal", (data) =>
+      handleSendSignal(socket, data)
     );
   }
 }

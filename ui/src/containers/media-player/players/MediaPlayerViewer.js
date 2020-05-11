@@ -1,13 +1,12 @@
-import React, { useRef, useEffect, useState } from 'react';
-import Grid from '@material-ui/core/Grid';
-import { usePeerConnectionContext } from 'contexts/peer-connection-context';
-import { useRoomContext } from 'contexts/room-context';
-import Button from 'commons/Button';
+import React, { useRef, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import Peer from "simple-peer";
+// import { usePeerConnectionContext, withPeerConnectionContext } from 'contexts/peer-connection-context';
 
 import socket from 'services/socket';
-import { REQUEST_VIDEO } from 'services/socket';
+import { REQUEST_VIDEO, SEND_SIGNAL, RECEIVE_SIGNAL } from 'services/socket';
+import { useRoomContext } from 'contexts/room-context';
 
-import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   stretch: { height: '100%', width: '100%', }
@@ -16,41 +15,36 @@ const useStyles = makeStyles(theme => ({
 const MediaPlayerViewer = (props) => {
   const classes = useStyles();
   const videoRef = useRef();
-  // const [isConnected, setIsConnected] = useState(false);
-  const { peerConnection } = usePeerConnectionContext();
   const { users, currentUserId } = useRoomContext();
+  const peerRef = useRef();
 
   useEffect(
     () => {
-      const seeder = (users || []).find(e => e.role === "seeder");
+      const seeder = (users || []).find(({ role }) => role === "seeder");
       if (!seeder) { return; }
-      socket.emit(REQUEST_VIDEO, { to: seeder.id });
+
+      peerRef.current = new Peer({ initiator: false, trickle: false, });
+
+      peerRef.current.on("signal", signal => {
+        socket.emit(SEND_SIGNAL, { from: currentUserId, to: seeder.id, signal });
+      });
+
+      peerRef.current.on("stream", stream => {
+        videoRef.current.srcObject = stream;
+      });
+
+      socket.on(RECEIVE_SIGNAL, ({ from, to, signal }) => {
+        if (to !== currentUserId) { return; }
+        peerRef.current.signal(signal);
+      });
     },
     [users]
-  );
-
-  useEffect(
-    () => {
-      try {
-        peerConnection.ontrack = ({ streams: [stream] }) => {
-          console.log("received", stream);
-          if (videoRef.current.srcObject) { return; }
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    [peerConnection]
   );
 
   return (
     <div>
       <p>{currentUserId}</p>
-      {/* <Grid container justify="center">
-        <Button onClick={handleConnect}>Get Video</Button>
-      </Grid> */}
-      <video ref={videoRef} autoPlay muted className={classes.stretch} />
+      <video ref={videoRef} autoPlay muted controls className={classes.stretch} />
     </div>
   );
 }

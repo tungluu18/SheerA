@@ -1,11 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { usePeerConnectionContext } from 'contexts/peer-connection-context';
-import { useRoomContext } from 'contexts/room-context';
-
 import { makeStyles } from '@material-ui/core/styles';
+import Peer from "simple-peer";
 
 import socket from 'services/socket';
-import { SEED_VIDEO } from 'services/socket';
+import { SEED_VIDEO, SEND_SIGNAL, RECEIVE_SIGNAL } from 'services/socket';
+import { useRoomContext } from 'contexts/room-context';
 
 const useStyles = makeStyles(theme => ({
   stretch: { height: '100%', width: '100%', }
@@ -14,27 +13,39 @@ const useStyles = makeStyles(theme => ({
 const MediaPlayerSeeder = () => {
   const classes = useStyles();
   const videoRef = useRef();
-  const { peerConnection, connectPeer } = usePeerConnectionContext();
-  const { currentUserId } = useRoomContext();
+  const { currentUserId, users } = useRoomContext();
+  const peersRef = useRef({});
 
   useEffect(
     () => {
-      const video = videoRef.current || {};
-      const stream = video.captureStream();
-      stream.onactive = (data) =>
-        stream.getTracks().forEach(track => {
-          peerConnection.addTrack(track, stream);
-        });
+      const newPeers = (users || []).filter(({ id }) =>
+        id !== currentUserId && !peersRef.current[id]
+      );
+
+      newPeers.forEach(({ id, role }) => {
+        if (role === "viewer") { peersRef.current[id] = createPeer(id); }
+      });
     },
-    [(videoRef.current || {}).captureStream, peerConnection]
+    [users]
   );
 
+  const createPeer = (remoteId) => {
+    const stream = videoRef.current.captureStream();
+    const newPeer = new Peer({ trickle: false, initiator: true, stream });
+
+    newPeer.on("signal", signal => {
+      socket.emit(SEND_SIGNAL, { from: currentUserId, to: remoteId, signal });
+    });
+
+    return newPeer;
+  }
+
   useEffect(
     () => {
-      socket.on(SEED_VIDEO, ({ to }) => connectPeer(to));
-      return () => {
-        socket.off(SEED_VIDEO);
-      }
+      socket.on(RECEIVE_SIGNAL, ({ from, to, signal }) => {
+        if (to !== currentUserId) { return; }
+        peersRef.current[from].signal(signal);
+      });
     },
     []
   );

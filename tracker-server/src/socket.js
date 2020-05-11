@@ -13,8 +13,8 @@ const handleSocketConnect = socket => {
   }
 
   activeSockets.push(newUser);
-  socket.emit("update-user-list", { users: activeSockets  });
-  socket.broadcast.emit("update-user-list", { users: [newUser] })
+  socket.emit("update-users", { users: activeSockets  });
+  socket.broadcast.emit("update-users", { users: [newUser] })
 
 }
 

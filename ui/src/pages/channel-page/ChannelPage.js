@@ -9,7 +9,7 @@ import MediaPlayer from 'containers/media-player/MediaPlayer';
 import { withRoomContext } from 'contexts/room-context';
 
 const useStyles = makeStyles(theme => ({
-  mediaPlayer: { width: '720px', height: '480px', },
+  mediaPlayer: { width: '90%', },
   chatRoom: { marginRight: theme.spacing(1), width: '100%', }
 }));
 
@@ -21,15 +21,17 @@ const ChannelPage = (props) => {
   return (
     <>
       <div>Em la channel {channelId}</div>
-      <Grid container direction="col" justify="" className={classes.root}>
-        <Grid item xs={3}>
-
+      <Grid container className={classes.root}>
+        <Grid container item xs={3}>
+          Channel list
         </Grid>
-        <Grid container item xs={6}>
+
+        <Grid container item xs={6} alignItems="center" justify="center">
           <Paper className={classes.mediaPlayer} elavation={2}>
             <MediaPlayer />
           </Paper>
         </Grid>
+
         <Grid container item xs={3} spacing={2}>
           <Paper className={classes.chatRoom} elavation={2}>
             <ChatRoom channelId={channelId} />

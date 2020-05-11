@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 
 import socket from 'services/socket';
-import { UPDATE_USER_LIST, REMOVE_USER } from 'services/socket';
+import { UPDATE_USERS, REMOVE_USER } from 'services/socket';
 
 const RoomContext = React.createContext();
 
@@ -12,9 +12,8 @@ const RoomProvider = ({ children }) => {
   const setupSocket = () => {
     if (!currentUserId) { setCurrentUserId(socket.id); }
 
-    socket.on(UPDATE_USER_LIST, ({ users: newUsers }) => {
+    socket.on(UPDATE_USERS, ({ users: newUsers }) => {
       setUsers([...users, ...newUsers]);
-      console.log(UPDATE_USER_LIST, newUsers);
     });
 
     socket.on(REMOVE_USER, (userId) => {
@@ -23,7 +22,7 @@ const RoomProvider = ({ children }) => {
     });
 
     return () => {
-      socket.off(UPDATE_USER_LIST);
+      socket.off(UPDATE_USERS);
       socket.off(REMOVE_USER);
     }
   }
