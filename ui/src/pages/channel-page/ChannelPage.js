@@ -20,7 +20,7 @@ const ChannelPage = (props) => {
 
   return (
     <>
-      <div>Em la channel {channelId}</div>
+      <div>channel {channelId}</div>
       <Grid container className={classes.root}>
         <Grid container item xs={3}>
           Channel list

@@ -21,7 +21,7 @@ const MediaPlayerViewer = (props) => {
   useEffect(
     () => {
       const seeder = (users || []).find(({ role }) => role === "seeder");
-      if (!seeder) { return; }
+      if (!seeder || !currentUserId) { return; }
 
       peerRef.current = new Peer({ initiator: false, trickle: false, });
 
@@ -37,13 +37,17 @@ const MediaPlayerViewer = (props) => {
         if (to !== currentUserId) { return; }
         peerRef.current.signal(signal);
       });
+
+      return () => {
+        socket.off(RECEIVE_SIGNAL);
+      }
     },
     [users]
   );
 
   return (
     <div>
-      <p>{currentUserId}</p>
+      <p>Viewer: {currentUserId}</p>
       <video ref={videoRef} autoPlay muted controls className={classes.stretch} />
     </div>
   );

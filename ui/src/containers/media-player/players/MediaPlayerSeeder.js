@@ -52,7 +52,7 @@ const MediaPlayerSeeder = () => {
 
   return (
     <div>
-      <p>{currentUserId}</p>
+      <p>Seeder: {currentUserId}</p>
       <video ref={videoRef} autoPlay muted controls className={classes.stretch}>
         <source src="/video/chrome.mp4" />
       </video>

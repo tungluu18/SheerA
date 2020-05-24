@@ -10,11 +10,13 @@
       "module-resolver",
       {
         "alias": {
-          "app": "./src/app",
-          "socket": "./src/socket",
-          "index": "./src/index",
+          "config": "./src/config",
+          "db": "./src/db",
           "routes": "./src/routes",
-          "socket-hooks": "./src/socket-hooks"
+          "socket": "./src/socket",
+          "utils": "./src/utils",
+          "app": "./src/app",
+          "index": "./src/index"
         }
       }
     ]

@@ -1,8 +1,21 @@
+version: "3"
+
 services:
   tracker:
     build: ./tracker-server
+    depends_on:
+      - database
+    networks:
+      - database_network
+  # ui:
+  #   build: ./ui
 
-  ui:
-    build: ./ui
+  database:
+    image: redis:6.0
+    ports:
+      - "6379:6379"
+    networks:
+      - database_network
 
 networks:
+  database_network:
