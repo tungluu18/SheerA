@@ -1,6 +1,6 @@
 import socketIOClient from 'socket.io-client'
 
-const socket = socketIOClient(process.env.REACT_APP_TRACKER_SERVER_ADDRESS);
+const socket = socketIOClient(`${process.env.REACT_APP_TRACKER_SERVER_ADDRESS}/channels`);
 
 const REQUEST_VIDEO = "request-video";
 const SEED_VIDEO    = "seed-video";
@@ -20,6 +20,9 @@ const REMOVE_USER = "remove-user";
 const SEND_SIGNAL = "send-signal";
 const RECEIVE_SIGNAL = "receive-signal";
 
+const CREATE_CHANNEL      = "create-channel";
+const CREATE_CHANNEL_RESP = "create-channel-resp";
+
 export {
   REQUEST_VIDEO, SEED_VIDEO,
   MAKE_CALL, CALL_MADE,
@@ -27,6 +30,7 @@ export {
   UPDATE_USERS, REMOVE_USER,
   ADD_ICE_CANDIDATE, SEND_ICE_CANDIDATE,
   SEND_SIGNAL, RECEIVE_SIGNAL,
+  CREATE_CHANNEL, CREATE_CHANNEL_RESP,
 }
 
 export default socket;
