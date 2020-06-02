@@ -1,50 +1,66 @@
 import redis from 'db';
 import io from 'socket';
 
-import { CHANNEL_USERS } from 'utils/redis-keys';
+import { CHANNEL_SET, USER, } from 'utils/redis-keys';
 
-const ERROR_USER_ALREADY_JOINED_ANOTHER_CHANNEL = "user-already-joined-another-channel";
+const ERROR_USER_ALREADY_JOINED_ANOTHER_CHANNEL = 'user-already-joined-another-channel';
+const ERROR_USER_DOES_NOT_JOIN_ANY_CHANNEL = 'user-does-not-join-any-channel';
+const ERROR_USER_IS_NOT_SEEDER = 'user-is-not-seeder';
 
-const userJoinChannel = async (userId, channelId, role = 'viewer') => {
-  const _channelId = await userInChannel(userId, { joinningChannelId: channelId });
-  if (_channelId) {
-    throw Error(ERROR_USER_ALREADY_JOINED_ANOTHER_CHANNEL);
+const CHANNEL_SET_TTL = 60;
+
+const joinChannel = async (userId, channelId, role = 'viewer') => {
+  const joinedChannelId = await inChannel(userId);
+  if (!!joinedChannelId) {
+    if (joinedChannelId !== channelId) {
+      throw Error(ERROR_USER_ALREADY_JOINED_ANOTHER_CHANNEL);
+    }
+    return;
   }
 
-  const result = await redis.hset(
-    `${CHANNEL_USERS}:${channelId}`, userId,
-    JSON.stringify({ role }),
-  );
-  return result;
+  await Promise.all([
+    redis.hmset(`${USER}:${userId}`, 'channel', channelId, 'role', role),
+    redis.sadd(`${CHANNEL_SET}:${channelId}`, userId),
+  ]);
 }
 
-const userLeaveChannel = async (userId, channelId) => {
-  const result = await redis.hdel(`${CHANNEL_USERS}:${channelId}`, userId);
-  return result;
+const leaveChannel = async (userId, channelId) => {
+  await Promise.all([
+    redis.hdel(`${USER}:${userId}`, 'role'),
+    redis.hdel(`${USER}:${userId}`, 'channel'),
+    redis.srem(`${CHANNEL_SET}:${channelId}`, userId),
+  ]);
 }
 
-const userInChannel = async (userId, options = {}) => {
-  const { joinningChannelId } = options;
+const getInfoInChannel = async (userId) => {
+  const userInfo = await redis.hgetall(`${USER}:${userId}`);
+  return userInfo;
+}
+
+const inChannel = async (userId) => {
   try {
-    let channelIds = await new Promise((res, rej) =>
-      io.of("/channels").adapter.clientRooms(userId, (err, rooms) => {
-        if (err) { rej(err); }
-        res(rooms);
-      })
-    );
-    if (joinningChannelId) {
-      channelIds = channelIds.filter((e) => e !== joinningChannelId);
-    }
-    const channelId = channelIds.find((e) => e !== userId);
-    console.log("Joined channel:", channelId);
+    const channelId = await redis.hget(`${USER}:${userId}`, 'channel');
     return channelId;
   } catch (error) {
     console.error(error);
   };
 }
 
+const extendChannelLive = async (userId) => {
+  try {
+    const { role, channel } = await getInfoInChannel(userId);
+    if (!channel) { throw new Error(ERROR_USER_DOES_NOT_JOIN_ANY_CHANNEL); }
+    if (role !== 'seeder') { throw Error(ERROR_USER_IS_NOT_SEEDER); }
+    redis.expire(`${CHANNEL_SET}:${channel}`, CHANNEL_SET_TTL);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export {
-  userJoinChannel,
-  userLeaveChannel,
-  userInChannel,
+  joinChannel,
+  leaveChannel,
+  inChannel,
+  getInfoInChannel,
+  extendChannelLive,
 }

@@ -23,6 +23,11 @@ const RECEIVE_SIGNAL = "receive-signal";
 const CREATE_CHANNEL      = "create-channel";
 const CREATE_CHANNEL_RESP = "create-channel-resp";
 
+const JOIN_CHANNEL      = "join-channel";
+const JOIN_CHANNEL_RESP = "join-channel-resp";
+
+const CHANNEL_ROUTE_UPDATE = "channel-route-update";
+
 export {
   REQUEST_VIDEO, SEED_VIDEO,
   MAKE_CALL, CALL_MADE,
@@ -31,6 +36,8 @@ export {
   ADD_ICE_CANDIDATE, SEND_ICE_CANDIDATE,
   SEND_SIGNAL, RECEIVE_SIGNAL,
   CREATE_CHANNEL, CREATE_CHANNEL_RESP,
+  JOIN_CHANNEL, JOIN_CHANNEL_RESP,
+  CHANNEL_ROUTE_UPDATE,
 }
 
 export default socket;

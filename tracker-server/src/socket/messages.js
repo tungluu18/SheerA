@@ -6,3 +6,8 @@ export const JOIN_CHANNEL_RESP    = "join-channel-resp";
 
 export const LEAVE_CHANNEL        = "leave-channel";
 export const LEAVE_CHANNEL_RESP   = "leave-channel-resp";
+
+export const SEND_SIGNAL          = "send-signal";
+export const RECEIVE_SIGNAL       = "receive-signal";
+
+export const CHANNEL_ROUTE_UPDATE = "channel-route-update";

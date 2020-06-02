@@ -1,13 +1,10 @@
 import SocketIO from 'socket.io';
-import redisAdapter from 'socket.io-redis';
-import redisConfig from 'config/redis';
 
-import channelHooks from './hooks/channel';
 import { userLeaveChannel } from 'db/users';
-// import rtcConnectHooks from './hooks/rtc-connect';
+import channelHooks from 'socket/hooks/channel';
+import rtcConnectHooks from 'socket/hooks/rtc-connect';
 
 const io = SocketIO();
-io.adapter(redisAdapter(redisConfig));
 
 const handleSocketConnect = socket => {
   console.log(`New client connected: ${socket.id}`);
@@ -21,10 +18,16 @@ const handleSocketDisconnect = socket => {
 io.of('/channels').on('connection', (socket) => {
   handleSocketConnect(socket);
 
-  // rtcConnectHooks(io, socket);
-  channelHooks(io, socket);
+  const disconnectHandlers = [];
 
-  socket.on("disconnect", () => handleSocketDisconnect(socket));
+  rtcConnectHooks(io, socket);
+  channelHooks(io, socket, { disconnectHandlers });
+
+  socket.on("disconnect", () => {
+    for (const handler of disconnectHandlers) {
+      if (handler instanceof Function) { handler(); }
+    }
+  });
 });
 
 export default io;

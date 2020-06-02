@@ -13,7 +13,6 @@ import MainPage from 'pages/main-page/MainPage';
 import TestPage from 'pages/test-page/TestPage';
 import DataTransferPage from 'pages/data-transfer-page/DataTransferPage';
 import ChannelPage from 'pages/channel-page/ChannelPage';
-import CreateChannelPage from 'pages/channel-page/CreateChannelPage';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -40,9 +39,8 @@ const App = (props) => {
         <Switch>
           <Route exact path='/data-transfer' component={DataTransferPage} />
           <Route exact path='/test' component={TestPage} />
-          <Route exact path='/channels' component={CreateChannelPage} />
-          <Route exact path='/channels/:channelId' component={ChannelPage} />
-          <Route exact path='/' component={MainPage} />
+          <Route path='/channels' component={ChannelPage} />
+          <Route path='/' component={MainPage} />
         </Switch>
       </Router>
     </div>

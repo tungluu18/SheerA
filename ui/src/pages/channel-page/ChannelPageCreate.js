@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const CreateChannelPage = () => {
+const ChannelPageCreate = () => {
   let history = useHistory();
   const classes = useStyles();
   const [message, setMessage] = useState();
@@ -60,4 +60,4 @@ const CreateChannelPage = () => {
   );
 }
 
-export default CreateChannelPage;
+export default ChannelPageCreate;

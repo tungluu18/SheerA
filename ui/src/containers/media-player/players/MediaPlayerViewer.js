@@ -4,9 +4,9 @@ import Peer from "simple-peer";
 // import { usePeerConnectionContext, withPeerConnectionContext } from 'contexts/peer-connection-context';
 
 import socket from 'services/socket';
-import { REQUEST_VIDEO, SEND_SIGNAL, RECEIVE_SIGNAL } from 'services/socket';
+import { SEND_SIGNAL, RECEIVE_SIGNAL } from 'services/socket';
 import { useRoomContext } from 'contexts/room-context';
-
+import { useChannelContext } from 'contexts/channel-context';
 
 const useStyles = makeStyles(theme => ({
   stretch: { height: '100%', width: '100%', }
@@ -15,7 +15,8 @@ const useStyles = makeStyles(theme => ({
 const MediaPlayerViewer = (props) => {
   const classes = useStyles();
   const videoRef = useRef();
-  const { users, currentUserId } = useRoomContext();
+  const { users } = useRoomContext();
+  const { currentUserId } = useChannelContext();
   const peerRef = useRef();
 
   useEffect(
@@ -42,7 +43,7 @@ const MediaPlayerViewer = (props) => {
         socket.off(RECEIVE_SIGNAL);
       }
     },
-    [users]
+    [users, currentUserId]
   );
 
   return (
