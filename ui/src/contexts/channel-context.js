@@ -10,7 +10,7 @@ const ChannelContext = React.createContext();
 
 const ChannelProvider = ({ children }) => {
   const currentUserId = socket.id;
-  const [channelRoute, setChannelRoute] = useState();
+  const [channelRoute, setChannelRoute] = useState({});
 
   const onChannelRoute = ({ status, error, data }) => {
     console.log("onChannelRoute", status, error, data);
@@ -18,8 +18,7 @@ const ChannelProvider = ({ children }) => {
       setChannelRoute({ error });
       return;
     }
-    console.log(data.role, data.parent, data.children);
-    setChannelRoute(data);
+    setChannelRoute({...channelRoute, ...data});
   }
 
   const joinChannel = (channelId) => {

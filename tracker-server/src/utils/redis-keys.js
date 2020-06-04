@@ -1,5 +1,9 @@
-export const CHANNEL_USERS  = "CHANNEL-USERS";
-export const CHANNEL_LIST   = "CHANNEL_LIST";
-export const CHANNEL_SET    = "CHANNEL_SET";
-
 export const USER = "USER";
+
+export const CHANNEL_SET = "CHANNEL-SET";
+export const CHANNEL_LIST = "CHANNEL-LIST";
+export const CHANNEL_USERS = "CHANNEL-USERS";
+
+export const CHANNEL_ROUTE_NODE = "CHANNEL-ROUTE-NODE";
+export const CHANNEL_ROUTE_DEPTH = "CHANNEL-ROUTE-DEPTH"
+export const CHANNEL_ROUTE_CHILDREN = "CHANNEL-ROUTE-CHILDREN";

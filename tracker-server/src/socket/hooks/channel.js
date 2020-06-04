@@ -7,7 +7,7 @@ import {
 } from 'socket/messages';
 import * as usersDB from 'db/users';
 import * as channelsDB from 'db/channels'
-import { initRoute } from 'utils/channel-routing';
+import { addNode } from 'utils/channel-routing';
 
 const ERROR_CHANNEL_DOES_NOT_EXIST = "channel-does-not-exist";
 
@@ -20,14 +20,14 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
     });
   }
 
-  socket.on(CREATE_CHANNEL, async (data) => {
+  socket.on(CREATE_CHANNEL, async () => {
     const channelId = uniqid();
     console.log(`${socket.id} is creating channel: ${channelId}`);
 
     try {
       await usersDB.joinChannel(socket.id, channelId, 'seeder');
-      const channelRoute = await initRoute(io, socket);
-      socket.emit(CREATE_CHANNEL_RESP, { status: 0, data: channelRoute });
+      await addNode(socket);
+      socket.emit(CREATE_CHANNEL_RESP, { status: 0, data: { channelId, role: 'seeder' } });
       setupSeederHook();
     } catch (error) {
       console.error(error);
@@ -45,8 +45,8 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       }
 
       await usersDB.joinChannel(socket.id, channelId);
-      const channelRoute = await initRoute(io, socket, channelId);
-      socket.emit(JOIN_CHANNEL_RESP, { status: 0, data: channelRoute });
+      await addNode(socket);
+      socket.emit(JOIN_CHANNEL_RESP, { status: 0, data: { channelId, role: 'viewer' } });
     } catch (error) {
       console.log(error);
       socket.emit(JOIN_CHANNEL_RESP, { status: 1, error });
@@ -70,7 +70,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
   socket.on(LEAVE_CHANNEL, handleLeaveChannel);
 
   disconnectHandlers.push(handleLeaveChannel);
-  disconnectHandlers.push(() => {console.log('leaving....')})
+  disconnectHandlers.push(() => { console.log('leaving....') })
 }
 
 export default channelHooks;
