@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, } from 'react';
 import socket from 'services/socket';
 import {
   CREATE_CHANNEL_RESP, JOIN_CHANNEL_RESP,
@@ -10,15 +10,17 @@ const ChannelContext = React.createContext();
 
 const ChannelProvider = ({ children }) => {
   const currentUserId = socket.id;
+  const channelRouteRef = useRef({});
   const [channelRoute, setChannelRoute] = useState({});
 
   const onChannelRoute = ({ status, error, data }) => {
-    console.log("onChannelRoute", status, error, data);
     if (status !== 0) {
-      setChannelRoute({ error });
+      channelRouteRef.current.error = error;
+      setChannelRoute(channelRouteRef.current);
       return;
     }
-    setChannelRoute({...channelRoute, ...data});
+    Object.assign(channelRouteRef.current, data);
+    setChannelRoute(Object.assign({}, channelRouteRef.current));
   }
 
   const joinChannel = (channelId) => {
@@ -41,7 +43,8 @@ const ChannelProvider = ({ children }) => {
   );
 
   return (
-    <ChannelContext.Provider value={{ joinChannel, currentUserId, ...channelRoute }}>
+    <ChannelContext.Provider
+      value={{ ...channelRoute, joinChannel, currentUserId }}>
       {children}
     </ChannelContext.Provider>
   )

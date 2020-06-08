@@ -1,4 +1,5 @@
 import { SEND_SIGNAL, RECEIVE_SIGNAL } from 'socket/messages';
+
 const rtcConnectHooks = (io, socket) => {
   // socket.on("make-call", (data) =>
   //   io.to(to).emit("call-made", { offer, from: socket.id })
@@ -20,8 +21,12 @@ const rtcConnectHooks = (io, socket) => {
   //   socket.broadcast.emit("receive-signal", { from, to, signal })
   // );
   socket.on(SEND_SIGNAL, (data) => {
-    const { to, signal } = data;
-    io.to(to).emit(RECEIVE_SIGNAL, { from, to, signal });
+    try {
+      const { from, to, signal } = data;
+      io.of('/channels').to(to).emit(RECEIVE_SIGNAL, { from, to, signal });
+    } catch (error) {
+      console.log(error);
+    }
   });
 }
 

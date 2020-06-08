@@ -1,55 +1,103 @@
-import React, { useRef, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useRef, useEffect, useCallback } from 'react';
 import Peer from "simple-peer";
-// import { usePeerConnectionContext, withPeerConnectionContext } from 'contexts/peer-connection-context';
+import { makeStyles } from '@material-ui/core/styles';
 
 import socket from 'services/socket';
 import { SEND_SIGNAL, RECEIVE_SIGNAL } from 'services/socket';
-import { useRoomContext } from 'contexts/room-context';
 import { useChannelContext } from 'contexts/channel-context';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   stretch: { height: '100%', width: '100%', }
 }));
 
-const MediaPlayerViewer = (props) => {
+const MediaPlayerViewer = () => {
   const classes = useStyles();
   const videoRef = useRef();
-  const { users } = useRoomContext();
-  const { currentUserId } = useChannelContext();
-  const peerRef = useRef();
+  const { currentUserId, parent, children } = useChannelContext();
+
+  const sourcePeerRef = useRef();
+  const forwardPeersRef = useRef({});
+
+  const createPeer = useCallback(
+    (remoteId) => {
+      const stream = videoRef.current.srcObject;
+      const newPeer = new Peer({ trickle: false, initiator: true, stream });
+
+      newPeer.on("signal", signal => {
+        socket.emit(SEND_SIGNAL, { from: currentUserId, to: remoteId, signal });
+      });
+
+      return newPeer;
+    },
+    [currentUserId]
+  );
 
   useEffect(
     () => {
-      const seeder = (users || []).find(({ role }) => role === "seeder");
-      if (!seeder || !currentUserId) { return; }
+      sourcePeerRef.current = new Peer({ initiator: false, trickle: false, });
 
-      peerRef.current = new Peer({ initiator: false, trickle: false, });
-
-      peerRef.current.on("signal", signal => {
-        socket.emit(SEND_SIGNAL, { from: currentUserId, to: seeder.id, signal });
+      sourcePeerRef.current.on("signal", signal => {
+        socket.emit(SEND_SIGNAL, { from: currentUserId, to: parent, signal });
       });
 
-      peerRef.current.on("stream", stream => {
+      sourcePeerRef.current.on("stream", stream => {
         videoRef.current.srcObject = stream;
       });
+    },
 
+    [parent, currentUserId]
+  );
+
+  useEffect(
+    () => {
+      const newPeers = (children || []).filter((id) =>
+        id !== currentUserId && !forwardPeersRef.current[id]
+      );
+
+      newPeers.forEach((id) => {
+        forwardPeersRef.current[id] = createPeer(id);
+      });
+    },
+    [children, currentUserId, createPeer]
+  );
+
+  useEffect(
+    () => {
       socket.on(RECEIVE_SIGNAL, ({ from, to, signal }) => {
         if (to !== currentUserId) { return; }
-        peerRef.current.signal(signal);
+        if (from === parent) {
+          sourcePeerRef.current.signal(signal);
+        } else {
+          if (!(children || []).includes(from)) { return; }
+          forwardPeersRef.current[from].signal(signal);
+        }
       });
 
       return () => {
         socket.off(RECEIVE_SIGNAL);
       }
     },
-    [users, currentUserId]
+    [parent, currentUserId, children]
   );
 
   return (
     <div>
       <p>Viewer: {currentUserId}</p>
       <video ref={videoRef} autoPlay muted controls className={classes.stretch} />
+
+      <>
+        <p>Receive from:</p>
+        <li>{parent}</li>
+      </>
+
+      {(children || []).length
+        ? <>
+          <p>Forward to:</p>
+          <ul>
+            {(children || []).map((e, index) => <li key={index}>{e}</li>)}
+          </ul>
+        </>
+        : null}
     </div>
   );
 }

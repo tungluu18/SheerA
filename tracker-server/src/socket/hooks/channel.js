@@ -26,8 +26,8 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
 
     try {
       await usersDB.joinChannel(socket.id, channelId, 'seeder');
-      await addNode(socket);
       socket.emit(CREATE_CHANNEL_RESP, { status: 0, data: { channelId, role: 'seeder' } });
+      await addNode(socket, channelId);
       setupSeederHook();
     } catch (error) {
       console.error(error);
@@ -45,8 +45,8 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       }
 
       await usersDB.joinChannel(socket.id, channelId);
-      await addNode(socket);
       socket.emit(JOIN_CHANNEL_RESP, { status: 0, data: { channelId, role: 'viewer' } });
+      await addNode(socket, channelId);
     } catch (error) {
       console.log(error);
       socket.emit(JOIN_CHANNEL_RESP, { status: 1, error });
@@ -60,7 +60,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       if (!channelId) { return; }
 
       await usersDB.leaveChannel(socket.id, channelId);
-      socket.emit(LEAVE_CHANNEL_RESP, { status: 0, data: { channelId } });
+        socket.emit(LEAVE_CHANNEL_RESP, { status: 0, data: { channelId } });
     } catch (error) {
       console.error(error);
       socket.emit(LEAVE_CHANNEL_RESP, { status: 1, error: error.message });

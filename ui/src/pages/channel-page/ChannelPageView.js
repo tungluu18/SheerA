@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
 
 const ChannelPageView = (props) => {
   const classes = useStyles();
-  const { role, joinChannel, error } = useChannelContext();
+  const { role, joinChannel } = useChannelContext();
   const { match: { params: { channelId } } } = props;
 
   useEffect(

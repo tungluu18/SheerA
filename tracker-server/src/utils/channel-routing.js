@@ -12,12 +12,8 @@ import {
 
 const MAX_NUMBER_OF_CHILDREN = 2;
 
-const addNode = async (socket) => {
-  const user = await usersDB.getInfoInChannel(socket.id);
-  const { channel: channelId, role } = user;
-
+const addNode = async (socket, channelId) => {
   let parent = null;
-  let children = [];
 
   const candidates = await redis.zpopmin(`${CHANNEL_ROUTE_DEPTH}:${channelId}`);
 
@@ -56,11 +52,9 @@ const addNode = async (socket) => {
       await redis.zadd(`${CHANNEL_ROUTE_DEPTH}:${channelId}`, depth, parent);
     }
   }
-
-  return { channelId, role, parent, children, }
 }
 
-const removeNode = (io, socket, channelId) => {
+const removeNode = (socket, channelId) => {
 
 }
 
