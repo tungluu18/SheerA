@@ -37,9 +37,17 @@ const MediaPlayerSeeder = () => {
         id !== currentUserId && !forwardPeersRef.current[id]
       );
 
-      newPeers.forEach((id) => {
-        forwardPeersRef.current[id] = createPeer(id);
+      // add new peerConnection to new children
+      newPeers.forEach((peerId) => {
+        forwardPeersRef.current[peerId] = createPeer(peerId);
       });
+
+      // remove old peerConnection to removed children
+      for (let peerId in forwardPeersRef.current) {
+        if (!(children || []).includes(peerId)) {
+          forwardPeersRef.current[peerId].destroy();
+        }
+      }
     },
     [children, currentUserId, createPeer]
   );
@@ -57,7 +65,7 @@ const MediaPlayerSeeder = () => {
   return (
     <div>
       <p>Seeder: {currentUserId}</p>
-      <video ref={videoRef} autoPlay muted controls className={classes.stretch}>
+      <video ref={videoRef} autoPlay muted controls loop className={classes.stretch}>
         <source src="/video/frag_bunny.mp4" />
       </video>
 

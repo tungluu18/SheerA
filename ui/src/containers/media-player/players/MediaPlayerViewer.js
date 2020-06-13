@@ -34,6 +34,11 @@ const MediaPlayerViewer = () => {
 
   useEffect(
     () => {
+      if (sourcePeerRef.current) {
+        // remove connection to old parent
+        sourcePeerRef.current.destroy();
+      }
+
       sourcePeerRef.current = new Peer({ initiator: false, trickle: false, });
 
       sourcePeerRef.current.on("signal", signal => {
@@ -41,6 +46,16 @@ const MediaPlayerViewer = () => {
       });
 
       sourcePeerRef.current.on("stream", stream => {
+        const oldStream = videoRef.current.srcObject;
+        if (oldStream) {
+          for (let peerId in forwardPeersRef.current) {
+            if (forwardPeersRef.current[peerId]._remoteStream
+              && forwardPeersRef.current[peerId]._remoteStream[0] === oldStream) {
+              forwardPeersRef.current[peerId].removeStream(oldStream);
+            }
+            forwardPeersRef.current[peerId].addStream(stream);
+          }
+        }
         videoRef.current.srcObject = stream;
       });
     },
@@ -57,6 +72,13 @@ const MediaPlayerViewer = () => {
       newPeers.forEach((id) => {
         forwardPeersRef.current[id] = createPeer(id);
       });
+
+      // remove old peerConnection to removed children
+      for (let peerId in forwardPeersRef.current) {
+        if (!(children || []).includes(peerId)) {
+          forwardPeersRef.current[peerId].destroy();
+        }
+      }
     },
     [children, currentUserId, createPeer]
   );
@@ -77,7 +99,7 @@ const MediaPlayerViewer = () => {
         socket.off(RECEIVE_SIGNAL);
       }
     },
-    [parent, currentUserId, children]
+    [currentUserId, parent, children]
   );
 
   return (

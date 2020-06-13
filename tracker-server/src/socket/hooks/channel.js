@@ -7,7 +7,7 @@ import {
 } from 'socket/messages';
 import * as usersDB from 'db/users';
 import * as channelsDB from 'db/channels'
-import { addNode } from 'utils/channel-routing';
+import { addNode, removeNode } from 'utils/channel-routing';
 
 const ERROR_CHANNEL_DOES_NOT_EXIST = "channel-does-not-exist";
 
@@ -60,7 +60,8 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       if (!channelId) { return; }
 
       await usersDB.leaveChannel(socket.id, channelId);
-        socket.emit(LEAVE_CHANNEL_RESP, { status: 0, data: { channelId } });
+      socket.emit(LEAVE_CHANNEL_RESP, { status: 0, data: { channelId } });
+      await removeNode(socket, channelId);
     } catch (error) {
       console.error(error);
       socket.emit(LEAVE_CHANNEL_RESP, { status: 1, error: error.message });
