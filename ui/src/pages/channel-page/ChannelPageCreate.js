@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 
 import Button from 'commons/Button';
 import socket from 'services/socket';
@@ -12,6 +13,7 @@ import { CREATE_CHANNEL, CREATE_CHANNEL_RESP } from 'services/socket';
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(1),
+    height: '100vh',
   }
 }));
 
@@ -26,7 +28,7 @@ const ChannelPageCreate = () => {
 
   useEffect(
     () => {
-      socket.on(CREATE_CHANNEL_RESP, ({status, error, data}) => {
+      socket.on(CREATE_CHANNEL_RESP, ({ status, error, data }) => {
         if (status === 0) {
           history.push(`/channels/${data.channelId}`);
         } else {
@@ -44,8 +46,14 @@ const ChannelPageCreate = () => {
 
   return (
     <>
-      <Grid container direction="column" alignItems="center" className={classes.root}>
-        <Button onClick={handleCreateChannel}>Create new channel</Button>
+      <Grid
+        className={classes.root} container
+        direction="column" alignItems="center" justify="center">
+        <Button
+          onClick={handleCreateChannel}
+          startIcon={<AddCircleOutlineIcon />}>
+          Create new channel
+        </Button>
         {!!message
           ? <Alert
             severity="error"

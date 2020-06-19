@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-
 import { makeStyles } from '@material-ui/core/styles';
 
-import ChatRoom from 'containers/chat-room/ChatRoom';
-import MediaPlayer from 'containers/media-player/MediaPlayer';
 import { useChannelContext } from 'contexts/channel-context';
 import { withRoomContext } from 'contexts/room-context';
+
+import ChatRoom from './containers/chat-room/ChatRoom';
+import MediaPlayer from './containers/media-player/MediaPlayer';
 
 const useStyles = makeStyles(theme => ({
   mediaPlayer: { width: '90%', },
@@ -37,7 +37,7 @@ const ChannelPageView = (props) => {
 
         <Grid container item xs={6} alignItems="center" justify="center">
           <Paper className={classes.mediaPlayer} elavation={2}>
-            <MediaPlayer role={role} />
+            <MediaPlayer />
           </Paper>
         </Grid>
 
