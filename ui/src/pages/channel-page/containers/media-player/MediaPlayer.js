@@ -24,7 +24,7 @@ const MediaPlayer = (props) => {
   return (
     role === 'seeder'
       ? <MediaPlayerSeeder {...{ ...props, children, currentUserId }} />
-      : <MediaPlayerViewer {...props} parent={parent} children={children} />
+      : <MediaPlayerViewer {...{ ...props, parent, children, currentUserId }} />
   );
 }
 
