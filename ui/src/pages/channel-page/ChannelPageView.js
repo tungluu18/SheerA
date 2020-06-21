@@ -31,18 +31,14 @@ const ChannelPageView = (props) => {
     <>
       <div>channel {channelId}</div>
       <Grid container className={classes.root}>
-        <Grid container item xs={3}>
-          Channel list
-        </Grid>
-
-        <Grid container item xs={6} alignItems="center" justify="center">
-          <Paper className={classes.mediaPlayer} elavation={2}>
+        <Grid container item xs={8} alignItems="center" justify="center">
+          <div className={classes.mediaPlayer}>
             <MediaPlayer />
-          </Paper>
+          </div>
         </Grid>
 
-        <Grid container item xs={3} spacing={2}>
-          <Paper className={classes.chatRoom} elavation={2}>
+        <Grid container item xs={4} spacing={2}>
+          <Paper className={classes.chatRoom} elavation={0}>
             <ChatRoom channelId={channelId} />
           </Paper>
         </Grid>

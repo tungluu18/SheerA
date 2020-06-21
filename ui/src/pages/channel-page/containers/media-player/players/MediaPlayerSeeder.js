@@ -20,7 +20,7 @@ const _screenCapture = async () => {
   }
 }
 
-const MediaPlayerSeeder = ({ currentUserId, children }) => {
+const MediaPlayerSeeder = () => {
   const classes = useStyles();
   const videoRef = useRef();
   const { setLocalStream } = useChannelRTCContext();
@@ -42,25 +42,13 @@ const MediaPlayerSeeder = ({ currentUserId, children }) => {
   // );
 
   return (
-    <div>
-      <p>Seeder: {currentUserId}</p>
-      <video
-        ref={videoRef}
-        autoPlay muted controls loop
-        className={classes.stretch}
-        onPlay={handleLoadedVideo}>
-        <source src="/video/frag_bunny.mp4" />
-      </video>
-
-      {(children || []).length
-        ? <>
-          <p>Forward to:</p>
-          <ul>
-            {(children || []).map((e, index) => <li key={index}>{e}</li>)}
-          </ul>
-        </>
-        : null}
-    </div>
+    <video
+      ref={videoRef}
+      autoPlay muted controls loop
+      className={classes.stretch}
+      onPlay={handleLoadedVideo}>
+      <source src="/video/frag_bunny.mp4" />
+    </video>
   );
 }
 

@@ -7,7 +7,7 @@ const useStyles = makeStyles(() => ({
   stretch: { height: '100%', width: '100%', }
 }));
 
-const MediaPlayerViewer = ({ currentUserId, parent, children }) => {
+const MediaPlayerViewer = () => {
   const classes = useStyles();
   const videoRef = useRef();
 
@@ -21,24 +21,7 @@ const MediaPlayerViewer = ({ currentUserId, parent, children }) => {
   );
 
   return (
-    <div>
-      <p>Viewer: {currentUserId}</p>
-      <video ref={videoRef} autoPlay muted controls className={classes.stretch} />
-
-      <>
-        <p>Receive from:</p>
-        <li>{parent}</li>
-      </>
-
-      {(children || []).length
-        ? <>
-          <p>Forward to:</p>
-          <ul>
-            {(children || []).map((e, index) => <li key={index}>{e}</li>)}
-          </ul>
-        </>
-        : null}
-    </div>
+    <video ref={videoRef} autoPlay muted controls className={classes.stretch} />
   );
 }
 
