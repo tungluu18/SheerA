@@ -10,7 +10,8 @@ import ChatRoom from './containers/chat-room/ChatRoom';
 import MediaPlayer from './containers/media-player/MediaPlayer';
 
 const useStyles = makeStyles(theme => ({
-  mediaPlayer: { width: '90%', },
+  root: { padding: theme.spacing(1), },
+  mediaPlayer: { marginRight: theme.spacing(1), width: '100%', },
   chatRoom: { marginRight: theme.spacing(1), width: '100%', }
 }));
 
@@ -28,22 +29,19 @@ const ChannelPageView = (props) => {
   );
 
   return (
-    <>
-      <div>channel {channelId}</div>
-      <Grid container className={classes.root}>
-        <Grid container item xs={8} alignItems="center" justify="center">
-          <div className={classes.mediaPlayer}>
-            <MediaPlayer />
-          </div>
-        </Grid>
-
-        <Grid container item xs={4} spacing={2}>
-          <Paper className={classes.chatRoom} elavation={0}>
-            <ChatRoom channelId={channelId} />
-          </Paper>
-        </Grid>
+    <Grid container className={classes.root} justify="space-around">
+      <Grid container item xs={8} alignItems="center" justify="center">
+        <div className={classes.mediaPlayer}>
+          <MediaPlayer />
+        </div>
       </Grid>
-    </>
+      <Grid container item xs={3}>
+        <Paper className={classes.chatRoom} elavation={0}>
+          <ChatRoom channelId={channelId} />
+        </Paper>
+      </Grid>
+    </Grid>
+
   );
 }
 

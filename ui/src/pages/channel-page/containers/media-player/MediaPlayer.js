@@ -19,8 +19,8 @@ const useStyles = makeStyles((theme) => ({
 const _hashUserId = (userId) => {
   return !userId ? userId
     : Array.isArray(userId)
-      ? userId.map(id => "Anon" + stringHash(id))
-      : "Anon" + stringHash(userId)
+      ? userId.map(id => "User" + stringHash(id))
+      : "User" + stringHash(userId)
 }
 
 const MediaPlayer = (props) => {
