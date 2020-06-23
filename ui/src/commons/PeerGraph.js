@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as am4core from '@amcharts/amcharts4/core';
-import * as am4charts from '@amcharts/amcharts4/charts';
 import { ForceDirectedTree, ForceDirectedSeries } from '@amcharts/amcharts4/plugins/forceDirected';
-
-import Paper from '@material-ui/core/Paper';
 
 const PeerGraph = ({ parent, children, currentUserId }) => {
   const [chartId] = useState(new Date().getTime())
@@ -21,7 +18,7 @@ const PeerGraph = ({ parent, children, currentUserId }) => {
 
       series.nodes.template.label.text = "{name}";
       series.nodes.template.tooltipText = "{id}";
-      console.debug(series.nodes.template);
+
       series.fontSize = 10;
       series.minRadius = 10;
       series.maxRadius = 30;

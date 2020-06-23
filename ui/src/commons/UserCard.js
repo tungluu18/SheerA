@@ -1,5 +1,4 @@
 import React from 'react';
-import Card from '@material-ui/core/Card';
 import Paper from '@material-ui/core/Paper';
 import CardHeader from '@material-ui/core/CardHeader';
 import Avatar from '@material-ui/core/Avatar';

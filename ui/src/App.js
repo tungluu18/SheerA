@@ -40,7 +40,7 @@ const App = (props) => {
           <Route exact path='/data-transfer' component={DataTransferPage} />
           <Route exact path='/test' component={TestPage} />
           <Route path='/channels' component={ChannelPage} />
-          <Route path='/' component={MainPage} />
+          <Route path='/' component={ChannelPage} />
         </Switch>
       </Router>
     </div>

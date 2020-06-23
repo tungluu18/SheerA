@@ -6,6 +6,7 @@ import { useChannelContext } from 'contexts/channel-context'
 import socket, { SEND_SIGNAL, RECEIVE_SIGNAL } from 'services/socket';
 import { iceServers } from 'utils/config';
 
+const simplePeerConfig = { iceServers }
 const ChannelRTCContext = React.createContext();
 
 export const ChannelRTCProvider = ({ children: childrenComponent }) => {
@@ -18,10 +19,10 @@ export const ChannelRTCProvider = ({ children: childrenComponent }) => {
   const createPeer = useCallback(
     (remoteId) => {
       const newPeer = new Peer({
-        trickle: false,
+        trickle: true,
         initiator: true,
         stream: localStream,
-        iceServers,
+        config: simplePeerConfig,
       });
 
       newPeer.on("signal", signal => {
@@ -42,7 +43,7 @@ export const ChannelRTCProvider = ({ children: childrenComponent }) => {
         sourcePeerRef.current.destroy();
       }
 
-      sourcePeerRef.current = new Peer({ initiator: false, trickle: false, iceServers});
+      sourcePeerRef.current = new Peer({ initiator: false, trickle: true, config: simplePeerConfig });
 
       sourcePeerRef.current.on("signal", signal => {
         socket.emit(SEND_SIGNAL, { from: currentUserId, to: parent, signal });

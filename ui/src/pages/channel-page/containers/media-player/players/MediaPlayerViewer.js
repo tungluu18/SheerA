@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { useChannelRTCContext, withChannelRTCContext } from 'contexts/channel-rtc-context';
