@@ -49,6 +49,8 @@ const ChannelPageCreate = () => {
       <Grid
         className={classes.root} container
         direction="column" alignItems="center" justify="center">
+        <img className='sheera-logo-primary' />
+        <br />
         <Button
           onClick={handleCreateChannel}
           startIcon={<AddCircleOutlineIcon />}>

@@ -16,6 +16,11 @@
   text-align: center;
 }
 
+.sheera-logo-primary {
+  content: url('/image/logo_full.png');
+  width: 15rem;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
