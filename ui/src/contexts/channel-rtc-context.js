@@ -50,22 +50,22 @@ export const ChannelRTCProvider = ({ children: childrenComponent }) => {
       });
 
       sourcePeerRef.current.on("stream", stream => {
-        // const oldStream = videoRef.current.srcObject;
-        if (localStream) {
-          for (let peerId in forwardPeersRef.current) {
-            if (forwardPeersRef.current[peerId]._remoteStream
-              && forwardPeersRef.current[peerId]._remoteStream[0] === localStream) {
-              forwardPeersRef.current[peerId].removeStream(localStream);
-            }
-            forwardPeersRef.current[peerId].addStream(stream);
-          }
-        }
-
-        setLocalStream(stream);
+        setLocalStream(stream.clone());
       });
     },
 
     [parent, currentUserId]
+  );
+
+  useEffect(
+    () => {
+      if (!localStream) { return; }
+      window.localStream = localStream;
+      for (let peerId in forwardPeersRef.current) {
+        forwardPeersRef.current[peerId].addStream(localStream);
+      }
+    },
+    [localStream]
   );
 
   useEffect(
@@ -88,7 +88,6 @@ export const ChannelRTCProvider = ({ children: childrenComponent }) => {
     },
     [children, currentUserId, createPeer]
   );
-
 
   useEffect(
     () => {

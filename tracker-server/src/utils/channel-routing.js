@@ -12,9 +12,13 @@ import {
 } from 'utils/redis-keys';
 
 const MAX_NUMBER_OF_CHILDREN = 2;
+const LOCK_EXPIRE_TIME = 2 * 1000;
+const LOCK_ERROR_MESSAGE = "Acquiring lock error";
 
 const addNode = async (socket, channelId) => {
   try {
+    await _acquireLock(channelId);
+
     const [parent] = await Promise.all([
       _findCandidate(channelId),
       redis.hset(CHANNEL_ROUTE_SUBTREE_SIZE, socket.id, 1),
@@ -33,16 +37,24 @@ const addNode = async (socket, channelId) => {
     socket.emit(CHANNEL_ROUTE_UPDATE, {
       status: 0, data: { parent },
     });
+
+    await _releaseLock(channelId);
   } catch (error) {
     console.log(error);
     socket.emit(CHANNEL_ROUTE_UPDATE, {
       status: 1, error: error.message,
     });
+
+    if (error.message !== LOCK_ERROR_MESSAGE) {
+      await _releaseLock(channelId);
+    }
   }
 }
 
 const removeNode = async (socket, channelId) => {
   try {
+    await _acquireLock(channelId);
+
     const parent = await redis.hget(CHANNEL_ROUTE_PARENT, socket.id);
 
     if (!parent) {
@@ -78,11 +90,17 @@ const removeNode = async (socket, channelId) => {
         });
       }
     }
+
+    await _releaseLock(channelId);
   } catch (error) {
     console.log(error);
     socket.emit(CHANNEL_ROUTE_UPDATE, {
       status: 1, error: error.message,
     });
+
+    if (error.message !== LOCK_ERROR_MESSAGE) {
+      await _releaseLock(channelId);
+    }
   }
 }
 
@@ -99,16 +117,20 @@ const _findCandidate = async (channelId) => {
     return undefined;
   }
 
+  console.log('Start find candidate');
+
   while (true) {
+    console.log('At', node);
+
     const children = await _getChildrenWithSubtreeSize(node) || [];
     if (children.length < MAX_NUMBER_OF_CHILDREN) {
       break;
     }
-
+    console.log('children', children);
     const minSubtree = children.reduce(
       (acc, curVal) =>
         acc === undefined ? Object.assign({}, curVal)
-          : acc.subtreeSize < curVal.subtreeSize
+          : acc.subtreeSize > curVal.subtreeSize
             ? Object.assign({}, curVal)
             : acc,
       undefined
@@ -195,3 +217,24 @@ const _getChildrenWithSubtreeSize = async (node) => {
 
   return result;
 }
+
+const _acquireLock = async (channelId) => {
+  const channelLock = `${CHANNEL_ROUTE_LOCK}:${channelId}`;
+  try {
+    while (true) {
+      const acquire = await redis.set(channelLock, 1, "px", LOCK_EXPIRE_TIME, "nx");
+      if (!!acquire) { return; }
+      await _sleep(LOCK_EXPIRE_TIME / 2);
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error(LOCK_ERROR_MESSAGE);
+  }
+}
+
+const _releaseLock = async (channelId) => {
+  const channelLock = `${CHANNEL_ROUTE_LOCK}:${channelId}`;
+  await redis.del(channelLock);
+}
+
+const _sleep = (miliseconds) => new Promise(resolve => setTimeout(resolve, miliseconds));
