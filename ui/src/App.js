@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
   Switch,
+  Redirect,
 } from 'react-router-dom';
 import './App.css';
 
@@ -32,10 +33,12 @@ const App = (props) => {
       <AppBar position="static" className={classes.appBar} />
       <Router>
         <Switch>
+          <Route exact path='/'>
+            <Redirect to="/channels" />
+          </Route>
           <Route exact path='/data-transfer' component={DataTransferPage} />
           <Route exact path='/test' component={TestPage} />
           <Route path='/channels' component={ChannelPage} />
-          <Route path='/' component={ChannelPage} />
         </Switch>
       </Router>
     </div>

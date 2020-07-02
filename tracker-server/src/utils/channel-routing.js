@@ -117,16 +117,16 @@ const _findCandidate = async (channelId) => {
     return undefined;
   }
 
-  console.log('Start find candidate');
+  // console.log('Start find candidate');
 
   while (true) {
-    console.log('At', node);
+    // console.log('At', node);
 
     const children = await _getChildrenWithSubtreeSize(node) || [];
     if (children.length < MAX_NUMBER_OF_CHILDREN) {
       break;
     }
-    console.log('children', children);
+    // console.log('children', children);
     const minSubtree = children.reduce(
       (acc, curVal) =>
         acc === undefined ? Object.assign({}, curVal)
