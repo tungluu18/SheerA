@@ -30,16 +30,14 @@ const MediaPlayerSeeder = () => {
     setLocalStream(stream);
   }
 
-  // useEffect(
-  //   () => {
-  //     _screenCapture()
-  //       .then(stream => {
-  //         console.log('Em lay duoc roi', stream);
-  //         videoRef.current.srcObject = stream;
-  //       });
-  //   },
-  //   []
-  // );
+  useEffect(
+    () => {
+      _screenCapture()
+        .then(stream => videoRef.current.srcObject = stream)
+        .catch(error => console.log(error));
+    },
+    []
+  );
 
   return (
     <video
@@ -47,7 +45,7 @@ const MediaPlayerSeeder = () => {
       autoPlay muted controls loop
       className={classes.stretch}
       onPlay={handleLoadedVideo}>
-      <source src="/video/frag_bunny.mp4" />
+      {/* <source src="/video/frag_bunny.mp4" /> */}
     </video>
   );
 }

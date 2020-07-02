@@ -8,9 +8,7 @@ import {
 import './App.css';
 
 import AppBar from '@material-ui/core/AppBar';
-import Typography from '@material-ui/core/Typography';
 
-import MainPage from 'pages/main-page/MainPage';
 import TestPage from 'pages/test-page/TestPage';
 import DataTransferPage from 'pages/data-transfer-page/DataTransferPage';
 import ChannelPage from 'pages/channel-page/ChannelPage';

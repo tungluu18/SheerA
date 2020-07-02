@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const UserCard = ({ userId, role }) => {
+const UserCard = ({ username, role }) => {
   const classes = useStyles();
 
   role = role === "seeder" ? "broadcaster" : "viewer";
@@ -34,7 +34,7 @@ const UserCard = ({ userId, role }) => {
             <AccountCircleIcon />
           </Avatar>
         }
-        title={userId}
+        title={username}
         subheader={role} />
     </Paper>
   );

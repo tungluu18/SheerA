@@ -22,6 +22,7 @@
     "morgan": "^1.10.0",
     "npm-run-all": "^4.1.5",
     "socket.io": "^2.3.0",
+    "string-hash": "^1.1.3",
     "uniqid": "^5.2.0"
   },
   "devDependencies": {

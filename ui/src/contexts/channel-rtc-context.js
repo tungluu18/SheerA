@@ -9,9 +9,17 @@ import { iceServers } from 'utils/config';
 const simplePeerConfig = { iceServers }
 const ChannelRTCContext = React.createContext();
 
+const _getIdsFromUserInfos = (userInfos) => {
+  console.log(userInfos);
+  return (userInfos || []).map(({ id }) => id);
+}
+
 export const ChannelRTCProvider = ({ children: childrenComponent }) => {
-  const { currentUserId, parent, children } = useChannelContext();
+  let { currentUserId, parent, children } = useChannelContext();
   const [localStream, setLocalStream] = useState();
+
+  parent = (parent || {}).id;
+  children = _getIdsFromUserInfos(children);
 
   const sourcePeerRef = useRef();
   const forwardPeersRef = useRef({});

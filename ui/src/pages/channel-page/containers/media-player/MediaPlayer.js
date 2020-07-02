@@ -5,7 +5,6 @@ import Paper from '@material-ui/core/Paper';
 import UserCard from 'commons/UserCard';
 import PeerGraph from 'commons/PeerGraph';
 import { useChannelContext } from 'contexts/channel-context';
-import { hashUserId } from 'utils/common';
 
 import MediaPlayerSeeder from './players/MediaPlayerSeeder';
 import MediaPlayerViewer from './players/MediaPlayerViewer';
@@ -18,11 +17,7 @@ const useStyles = makeStyles((theme) => ({
 
 const MediaPlayer = (props) => {
   const classes = useStyles();
-  let { role, parent, children, currentUserId } = useChannelContext();
-
-  currentUserId = hashUserId(currentUserId);
-  parent = hashUserId(parent);
-  children = hashUserId(children);
+  let { role, parent, children, currentUserId, currentUserDisplayName, } = useChannelContext();
 
   return (
     <>
@@ -31,11 +26,12 @@ const MediaPlayer = (props) => {
         : <MediaPlayerViewer {...{ ...props, parent, children, currentUserId }} />}
 
       <Paper className={classes.channelInfo} elevation={1}>
-        <UserCard userId={currentUserId} role={role} />
+        <UserCard username={currentUserDisplayName} role={role} />
         <PeerGraph
           parent={parent}
           children={children}
-          currentUserId={currentUserId} />
+          currentUserId={currentUserId}
+          currentUserDisplayName={currentUserDisplayName} />
       </Paper>
     </>
   );

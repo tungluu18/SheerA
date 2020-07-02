@@ -1,5 +1,5 @@
 import redis from 'db';
-import io from 'socket';
+import stringHash from 'string-hash';
 
 import { CHANNEL_SET, USER, } from 'utils/redis-keys';
 
@@ -9,7 +9,7 @@ const ERROR_USER_IS_NOT_SEEDER = 'user-is-not-seeder';
 
 const CHANNEL_SET_TTL = 60;
 
-const joinChannel = async (userId, channelId, role = 'viewer') => {
+const joinChannel = async (userId, channelId, role = 'viewer', { displayName } = {}) => {
   const joinedChannelId = await inChannel(userId);
   if (!!joinedChannelId) {
     if (joinedChannelId !== channelId) {
@@ -18,8 +18,14 @@ const joinChannel = async (userId, channelId, role = 'viewer') => {
     return;
   }
 
+  if (!displayName) displayName = `Anon${stringHash(userId)}`;
+
   await Promise.all([
-    redis.hmset(`${USER}:${userId}`, 'channel', channelId, 'role', role),
+    redis.hmset(`${USER}:${userId}`,
+      'channel', channelId,
+      'role', role,
+      'displayName', displayName,
+    ),
     redis.sadd(`${CHANNEL_SET}:${channelId}`, userId),
   ]);
 }

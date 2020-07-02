@@ -23,8 +23,8 @@ const ChannelProvider = ({ children }) => {
     setChannelRoute(Object.assign({}, channelRouteRef.current));
   }
 
-  const joinChannel = (channelId) => {
-    socket.emit(JOIN_CHANNEL, ({ channelId }));
+  const joinChannel = (data) => {
+    socket.emit(JOIN_CHANNEL, data);
   }
 
   useEffect(
@@ -44,7 +44,12 @@ const ChannelProvider = ({ children }) => {
 
   return (
     <ChannelContext.Provider
-      value={{ ...channelRoute, joinChannel, currentUserId }}>
+      value={{
+        ...channelRoute,
+        joinChannel,
+        currentUserId,
+        currentUserDisplayName: channelRoute.displayName,
+      }}>
       {children}
     </ChannelContext.Provider>
   )

@@ -1,4 +1,5 @@
 import redis from 'db';
+import * as userDB from 'db/users';
 
 import io from 'socket';
 import { CHANNEL_ROUTE_UPDATE } from 'socket/messages';
@@ -32,10 +33,10 @@ const addNode = async (socket, channelId) => {
 
     const siblings = await _addChild(parent, socket.id);
     io.of('/channels').to(parent).emit(CHANNEL_ROUTE_UPDATE, {
-      status: 0, data: { children: siblings },
+      status: 0, data: { children: await _getUserInfoFromIds(siblings) },
     });
     socket.emit(CHANNEL_ROUTE_UPDATE, {
-      status: 0, data: { parent },
+      status: 0, data: { parent: await _getUserInfoFromId(parent) },
     });
 
     await _releaseLock(channelId);
@@ -69,7 +70,7 @@ const removeNode = async (socket, channelId) => {
     ]);
 
     io.of('/channels').to(parent).emit(CHANNEL_ROUTE_UPDATE, {
-      status: 0, data: { children: siblings },
+      status: 0, data: { children: await _getUserInfoFromIds(siblings) },
     });
     socket.emit(CHANNEL_ROUTE_UPDATE, {
       status: 0, data: { parent: null },
@@ -83,10 +84,10 @@ const removeNode = async (socket, channelId) => {
         const result = await _addChild(newParent, c);
 
         io.of('/channels').to(c).emit(CHANNEL_ROUTE_UPDATE, {
-          status: 0, data: { parent: newParent },
+          status: 0, data: { parent: await _getUserInfoFromId(newParent) },
         });
         io.of('/channels').to(newParent).emit(CHANNEL_ROUTE_UPDATE, {
-          status: 0, data: { children: result },
+          status: 0, data: { children: await _getUserInfoFromIds(result) },
         });
       }
     }
@@ -117,16 +118,11 @@ const _findCandidate = async (channelId) => {
     return undefined;
   }
 
-  // console.log('Start find candidate');
-
   while (true) {
-    // console.log('At', node);
-
     const children = await _getChildrenWithSubtreeSize(node) || [];
     if (children.length < MAX_NUMBER_OF_CHILDREN) {
       break;
     }
-    // console.log('children', children);
     const minSubtree = children.reduce(
       (acc, curVal) =>
         acc === undefined ? Object.assign({}, curVal)
@@ -238,3 +234,11 @@ const _releaseLock = async (channelId) => {
 }
 
 const _sleep = (miliseconds) => new Promise(resolve => setTimeout(resolve, miliseconds));
+
+const _getUserInfoFromId = async (userId) => {
+  const user = await userDB.getInfoInChannel(userId);
+  return { ...user, id: userId };
+};
+
+const _getUserInfoFromIds = async (userIds) =>
+  Promise.all((userIds || []).map(_getUserInfoFromId));

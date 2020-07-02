@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import * as am4core from '@amcharts/amcharts4/core';
 import { ForceDirectedTree, ForceDirectedSeries } from '@amcharts/amcharts4/plugins/forceDirected';
 
-const PeerGraph = ({ parent, children, currentUserId }) => {
+const PeerGraph = ({ parent, children, currentUserId, currentUserDisplayName }) => {
   const [chartId] = useState(new Date().getTime())
   const chartRef = useRef();
 
@@ -23,7 +23,7 @@ const PeerGraph = ({ parent, children, currentUserId }) => {
       series.minRadius = 10;
       series.maxRadius = 30;
 
-      series.data = _formatChartData({ parent, children, currentUserId });
+      series.data = _formatChartData({ parent, children, currentUserId, currentUserDisplayName });
 
       return () => {
         chartRef.current.dispose();
@@ -32,24 +32,20 @@ const PeerGraph = ({ parent, children, currentUserId }) => {
     [parent, children, currentUserId]
   );
 
-  return (
-    // <Paper>
-    <div id={`chartdiv-${chartId}`} />
-    // </Paper>
-  );
+  return <div id={`chartdiv-${chartId}`} />;
 }
 
 export default PeerGraph
 
-const _formatChartData = ({ parent, children, currentUserId }) => {
-  const currentNode = { id: currentUserId, name: "current", value: 200, };
+const _formatChartData = ({ parent, children, currentUserId, currentUserDisplayName }) => {
+  const currentNode = { id: currentUserDisplayName, name: "current", value: 200, };
 
   currentNode.children = (children || []).map((child, idx) => ({
-    id: child, name: `child #${idx + 1}`, value: 300, color: am4core.color("green"),
+    id: child.displayName, name: `child #${idx + 1}`, value: 300, color: am4core.color("green"),
   }));
 
   if (parent) {
-    const parentNode = { id: parent, name: "parent", value: 100, children: [currentNode] };
+    const parentNode = { id: parent.displayName, name: "parent", value: 100, children: [currentNode] };
     return [parentNode];
   }
 

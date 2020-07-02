@@ -20,13 +20,13 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
     });
   }
 
-  socket.on(CREATE_CHANNEL, async () => {
+  socket.on(CREATE_CHANNEL, async ({ displayName }) => {
     const channelId = uniqid();
     console.log(`${socket.id} is creating channel: ${channelId}`);
 
     try {
-      await usersDB.joinChannel(socket.id, channelId, 'seeder');
-      socket.emit(CREATE_CHANNEL_RESP, { status: 0, data: { channelId, role: 'seeder' } });
+      await usersDB.joinChannel(socket.id, channelId, 'seeder', { displayName });
+      socket.emit(CREATE_CHANNEL_RESP, { status: 0, data: { channelId, role: 'seeder', displayName } });
       await addNode(socket, channelId);
       setupSeederHook();
     } catch (error) {
@@ -35,7 +35,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
     }
   });
 
-  socket.on(JOIN_CHANNEL, async ({ channelId }) => {
+  socket.on(JOIN_CHANNEL, async ({ channelId, displayName }) => {
     console.log(`${socket.id} is joining channel: ${channelId}`);
 
     try {
@@ -44,8 +44,8 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
         return;
       }
 
-      await usersDB.joinChannel(socket.id, channelId);
-      socket.emit(JOIN_CHANNEL_RESP, { status: 0, data: { channelId, role: 'viewer' } });
+      await usersDB.joinChannel(socket.id, channelId, 'viewer', { displayName });
+      socket.emit(JOIN_CHANNEL_RESP, { status: 0, data: { channelId, role: 'viewer', displayName } });
       await addNode(socket, channelId);
     } catch (error) {
       console.log(error);
