@@ -22,7 +22,7 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(1),
-    height: '100vh',
+    height: '100%',
   },
   createChannelForm: {
     '& > *': {

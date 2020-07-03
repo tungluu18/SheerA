@@ -11,3 +11,6 @@ export const SEND_SIGNAL          = "send-signal";
 export const RECEIVE_SIGNAL       = "receive-signal";
 
 export const CHANNEL_ROUTE_UPDATE = "channel-route-update";
+
+export const SEND_MESSAGE         = "send-message";
+export const RECEIVE_MESSAGE      = "receive-message";

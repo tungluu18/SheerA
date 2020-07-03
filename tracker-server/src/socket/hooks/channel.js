@@ -4,7 +4,9 @@ import {
   LEAVE_CHANNEL, LEAVE_CHANNEL_RESP,
   CREATE_CHANNEL, CREATE_CHANNEL_RESP,
   CHANNEL_ROUTE,
+  SEND_MESSAGE, RECEIVE_MESSAGE,
 } from 'socket/messages';
+import io from 'socket';
 import * as usersDB from 'db/users';
 import * as channelsDB from 'db/channels'
 import { addNode, removeNode } from 'utils/channel-routing';
@@ -26,6 +28,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
 
     try {
       await usersDB.joinChannel(socket.id, channelId, 'seeder', { displayName });
+      await socket.join(channelId);
       socket.emit(CREATE_CHANNEL_RESP, { status: 0, data: { channelId, role: 'seeder', displayName } });
       await addNode(socket, channelId);
       setupSeederHook();
@@ -45,6 +48,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       }
 
       await usersDB.joinChannel(socket.id, channelId, 'viewer', { displayName });
+      await socket.join(channelId);
       socket.emit(JOIN_CHANNEL_RESP, { status: 0, data: { channelId, role: 'viewer', displayName } });
       await addNode(socket, channelId);
     } catch (error) {
@@ -67,6 +71,12 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       socket.emit(LEAVE_CHANNEL_RESP, { status: 1, error: error.message });
     }
   }
+
+  socket.on(SEND_MESSAGE, async ({ content, time }) => {
+    const userInfo = await usersDB.getInfoInChannel(socket.id);
+    const message = {...userInfo, content, id: socket.id, time}
+    io.of('/channels').to(userInfo.channel).emit(RECEIVE_MESSAGE, message);
+  });
 
   socket.on(LEAVE_CHANNEL, handleLeaveChannel);
 

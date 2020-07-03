@@ -28,6 +28,9 @@ const JOIN_CHANNEL_RESP = "join-channel-resp";
 
 const CHANNEL_ROUTE_UPDATE = "channel-route-update";
 
+const SEND_MESSAGE    = "send-message";
+const RECEIVE_MESSAGE = "receive-message";
+
 export {
   REQUEST_VIDEO, SEED_VIDEO,
   MAKE_CALL, CALL_MADE,
@@ -38,6 +41,7 @@ export {
   CREATE_CHANNEL, CREATE_CHANNEL_RESP,
   JOIN_CHANNEL, JOIN_CHANNEL_RESP,
   CHANNEL_ROUTE_UPDATE,
+  SEND_MESSAGE, RECEIVE_MESSAGE,
 }
 
 export default socket;

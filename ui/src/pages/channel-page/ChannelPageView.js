@@ -21,7 +21,7 @@ import MediaPlayer from './containers/media-player/MediaPlayer';
 const useStyles = makeStyles(theme => ({
   root: { padding: theme.spacing(1), },
   mediaPlayer: { marginRight: theme.spacing(1), width: '100%', },
-  chatRoom: { marginRight: theme.spacing(1), width: '100%', },
+  chatRoom: { marginRight: theme.spacing(1), width: '100%', height: '560px' },
   joinChannelForm: { '& > *': { margin: theme.spacing(1), } },
 }));
 
@@ -72,7 +72,7 @@ const JoinChannelDialog = ({ isOpen, update, submit }) => {
   const classes = useStyles();
 
   return (
-    <>;
+    <>
       <Dialog open={isOpen !== 0}>
         <DialogTitle>How should we call you?</DialogTitle>
         <Divider />

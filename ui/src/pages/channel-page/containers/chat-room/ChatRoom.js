@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -14,6 +14,9 @@ import Fab from '@material-ui/core/Fab';
 import SendIcon from '@material-ui/icons/Send';
 import { ListItemAvatar } from '@material-ui/core';
 import { useChannelContext } from 'contexts/channel-context';
+
+import { SEND_MESSAGE, RECEIVE_MESSAGE } from 'services/socket';
+import socket from 'services/socket';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,45 +40,58 @@ const useStyles = makeStyles((theme) => ({
 
 const ChatRoom = () => {
   const classes = useStyles();
-  const currentUserId = "user1";
+  const { currentUserId, currentUserDisplayName } = useChannelContext();
+  const messagesRef = useRef([]);
+  const [messages, setMessages] = useState();
+  const [typingMessage, setTypingMessage] = useState();
 
-  const messages = [
-    {
-      content: "Hey man, What's up ?",
-      time: "09:30",
-      user: "user1",
+  const handleTypingMessageChange = (e) => {
+    setTypingMessage(e.target.value);
+  }
+
+  const handleSendMessage = () => {
+    socket.emit(SEND_MESSAGE, { content: typingMessage, time: new Date() });
+    setTypingMessage("");
+  }
+
+  useEffect(
+    () => {
+      socket.on(RECEIVE_MESSAGE, (data) => {
+        const newMessages = [...messagesRef.current, data];
+        messagesRef.current = newMessages;
+        setMessages(newMessages);
+      });
+
+      return () => {
+        socket.off(RECEIVE_MESSAGE);
+      }
     },
-    {
-      content: "Hey, Iam Good! What about you ?",
-      time: "09:31",
-      user: "user2",
-    }, {
-      content: "Cool. i am good, let's catch up!",
-      time: "10:30",
-      user: "user1",
-    }
-  ];
+    [messages]
+  );
 
   return (
     <Grid container component={Paper} className={classes.root}>
       <Grid container item xs={12} direction="column" justify="space-between">
         <List className={classes.messageArea}>
           {(messages || []).map(
-            ({ content, time, user }, idx) =>
+            ({ content, time, displayName, id }, idx) =>
               <Message
                 key={idx}
                 content={content} time={time}
-                currentUserId={currentUserId} user={user} />
+                currentUserId={currentUserId}
+                senderId={id}
+                senderName={displayName} />
           )}
         </List>
         <div>
           <Divider />
           <Grid container style={{ padding: '20px' }}>
             <Grid item xs={11}>
-              <TextField id="outlined-basic-email" label="Type Something" fullWidth />
+              <TextField id="outlined-basic-email" label="Type Something" fullWidth
+                value={typingMessage} onChange={handleTypingMessageChange} />
             </Grid>
             <Grid xs={1} align="right">
-              <Fab color="primary" aria-label="add"><SendIcon /></Fab>
+              <Fab color="primary" aria-label="add" onClick={handleSendMessage}><SendIcon /></Fab>
             </Grid>
           </Grid>
         </div>
@@ -86,9 +102,9 @@ const ChatRoom = () => {
 
 export default ChatRoom;
 
-const Message = ({ content, time, user, currentUserId }) => {
+const Message = ({ content, time, senderName, senderId, currentUserId }) => {
   const classes = useStyles();
-  const isSender = user === currentUserId;
+  const isSender = senderId === currentUserId;
 
   return (
     <ListItem>
@@ -103,10 +119,12 @@ const Message = ({ content, time, user, currentUserId }) => {
         <Grid item align="right">
           <Paper className={`${classes.messageContent} ${isSender ? classes.myMessage : ''}`}>
             <ListItemText primary={content}></ListItemText>
-            <ListItemText secondary={`${user} at ${time}`}></ListItemText>
+            <ListItemText secondary={`${senderName} at ${_parseTime(time)}`}></ListItemText>
           </Paper>
         </Grid>
       </Grid>
     </ListItem>
   );
 }
+
+const _parseTime = (time) => new Date(time).toString().substr(16, 8);
