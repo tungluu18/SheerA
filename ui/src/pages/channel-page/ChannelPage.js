@@ -15,10 +15,10 @@ const ChannelPage = ({ match }) => {
   return (
     <Router>
       <Switch>
-        <Route exact path={`${match.path}/create`} component={ChannelPageCreate} />
+        <Route exact path={`${match.path}/join`} component={ChannelPageCreate} />
         <Route exact path={`${match.path}/:channelId`} component={ChannelPageView} />
         <Route path="/">
-          <Redirect to={`${match.path}/create`} />
+          <Redirect to={`${match.path}/join`} />
         </Route>
       </Switch>
     </Router>

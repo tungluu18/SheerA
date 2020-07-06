@@ -14,3 +14,6 @@ export const CHANNEL_ROUTE_UPDATE = "channel-route-update";
 
 export const SEND_MESSAGE         = "send-message";
 export const RECEIVE_MESSAGE      = "receive-message";
+
+export const FIND_CHANNEL         = "find-channel";
+export const FIND_CHANNEL_RESP    = "find-channel-resp";

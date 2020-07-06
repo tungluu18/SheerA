@@ -2,46 +2,36 @@ import socketIOClient from 'socket.io-client'
 
 const socket = socketIOClient(`${process.env.REACT_APP_TRACKER_SERVER_ADDRESS}/channels`);
 
-const REQUEST_VIDEO = "request-video";
-const SEED_VIDEO    = "seed-video";
+export const REQUEST_VIDEO = "request-video";
+export const SEED_VIDEO    = "seed-video";
 
-const MAKE_CALL = "make-call";
-const CALL_MADE = "call-made";
+export const MAKE_CALL = "make-call";
+export const CALL_MADE = "call-made";
 
-const ANSWER_MADE = "answer-made";
-const MAKE_ANSWER = "make-answer";
+export const ANSWER_MADE = "answer-made";
+export const MAKE_ANSWER = "make-answer";
 
-const ADD_ICE_CANDIDATE = "add-ice-candidate";
-const SEND_ICE_CANDIDATE = "send-ice-candidate";
+export const ADD_ICE_CANDIDATE = "add-ice-candidate";
+export const SEND_ICE_CANDIDATE = "send-ice-candidate";
 
-const UPDATE_USERS = "update-users";
-const REMOVE_USER = "remove-user";
+export const UPDATE_USERS = "update-users";
+export const REMOVE_USER = "remove-user";
 
-const SEND_SIGNAL = "send-signal";
-const RECEIVE_SIGNAL = "receive-signal";
+export const SEND_SIGNAL = "send-signal";
+export const RECEIVE_SIGNAL = "receive-signal";
 
-const CREATE_CHANNEL      = "create-channel";
-const CREATE_CHANNEL_RESP = "create-channel-resp";
+export const CREATE_CHANNEL      = "create-channel";
+export const CREATE_CHANNEL_RESP = "create-channel-resp";
 
-const JOIN_CHANNEL      = "join-channel";
-const JOIN_CHANNEL_RESP = "join-channel-resp";
+export const JOIN_CHANNEL      = "join-channel";
+export const JOIN_CHANNEL_RESP = "join-channel-resp";
 
-const CHANNEL_ROUTE_UPDATE = "channel-route-update";
+export const CHANNEL_ROUTE_UPDATE = "channel-route-update";
 
-const SEND_MESSAGE    = "send-message";
-const RECEIVE_MESSAGE = "receive-message";
+export const SEND_MESSAGE    = "send-message";
+export const RECEIVE_MESSAGE = "receive-message";
 
-export {
-  REQUEST_VIDEO, SEED_VIDEO,
-  MAKE_CALL, CALL_MADE,
-  MAKE_ANSWER, ANSWER_MADE,
-  UPDATE_USERS, REMOVE_USER,
-  ADD_ICE_CANDIDATE, SEND_ICE_CANDIDATE,
-  SEND_SIGNAL, RECEIVE_SIGNAL,
-  CREATE_CHANNEL, CREATE_CHANNEL_RESP,
-  JOIN_CHANNEL, JOIN_CHANNEL_RESP,
-  CHANNEL_ROUTE_UPDATE,
-  SEND_MESSAGE, RECEIVE_MESSAGE,
-}
+export const FIND_CHANNEL       = "find-channel";
+export const FIND_CHANNEL_RESP  = "find-channel-resp";
 
 export default socket;

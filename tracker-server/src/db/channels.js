@@ -38,10 +38,16 @@ const removeChannel = async (channelId) => {
   ]);
 }
 
+const findChannelIdByName = async (channelName) => {
+  const channelId = await redis.hget(CHANNEL_MAP_NAME_ID, channelName);
+  return channelId;
+}
+
 export {
   getAllUsersInChannel,
   isUserInChannel,
   isExisted,
   createChannel,
   removeChannel,
+  findChannelIdByName,
 }

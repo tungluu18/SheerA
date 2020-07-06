@@ -3,8 +3,8 @@ import {
   JOIN_CHANNEL, JOIN_CHANNEL_RESP,
   LEAVE_CHANNEL, LEAVE_CHANNEL_RESP,
   CREATE_CHANNEL, CREATE_CHANNEL_RESP,
-  CHANNEL_ROUTE,
   SEND_MESSAGE, RECEIVE_MESSAGE,
+  FIND_CHANNEL, FIND_CHANNEL_RESP,
 } from 'socket/messages';
 import io from 'socket';
 import * as usersDB from 'db/users';
@@ -37,7 +37,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       setupSeederHook(channelId);
     } catch (error) {
       console.error(error);
-      socket.emit(CREATE_CHANNEL_RESP, { status: 1, error: error.message });
+      socket.emit(CREATE_CHANNEL_RESP, { status: 2, error: error.message });
     }
   });
 
@@ -71,7 +71,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
       await removeNode(socket, channelId);
     } catch (error) {
       console.error(error);
-      socket.emit(LEAVE_CHANNEL_RESP, { status: 1, error: error.message });
+      socket.emit(LEAVE_CHANNEL_RESP, { status: 2, error: error.message });
     }
   }
 
@@ -79,6 +79,20 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
     const userInfo = await usersDB.getInfoInChannel(socket.id);
     const message = { ...userInfo, content, id: socket.id, time };
     io.of('/channels').to(userInfo.channel).emit(RECEIVE_MESSAGE, message);
+  });
+
+  socket.on(FIND_CHANNEL, async ({ channelName }) => {
+    try {
+      const channelId = await channelsDB.findChannelIdByName(channelName);
+      if (!channelId) {
+        socket.emit(FIND_CHANNEL_RESP, { status: 1, error: ERROR_CHANNEL_DOES_NOT_EXIST });
+        return;
+      }
+      socket.emit(FIND_CHANNEL_RESP, { status: 0, data: { channelId } });
+    } catch (error) {
+      console.log(error);
+      socket.emit(FIND_CHANNEL_RESP, { status: 2, error: error.message });
+    }
   });
 
   socket.on(LEAVE_CHANNEL, handleLeaveChannel);
