@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,11 +10,14 @@ import MuiButton from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Divider from '@material-ui/core/Divider';
-
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useChannelContext } from 'contexts/channel-context';
+import Alert from 'commons/Alert';
 import { withRoomContext } from 'contexts/room-context';
+import { useChannelContext } from 'contexts/channel-context';
+import socket from 'services/socket';
+import { JOIN_CHANNEL_RESP } from 'services/socket';
+import { DisplayMessage } from 'utils/constants';
 
 import ChatRoom from './containers/chat-room/ChatRoom';
 import MediaPlayer from './containers/media-player/MediaPlayer';
@@ -31,6 +35,7 @@ const ChannelPageView = (props) => {
   const { match: { params: { channelId } } } = props;
   const [displayName, setDisplayName] = useState();
   const [openJoinChannelDialog, setOpenJoinChannelDialog] = useState(!role ? 1 : 0);
+  const [errorMessage, setErrorMessage] = useState();
 
   const submitJoinChannel = () => {
     setOpenJoinChannelDialog(-1);
@@ -41,9 +46,15 @@ const ChannelPageView = (props) => {
 
   useEffect(
     () => {
-      if (!!role) { setOpenJoinChannelDialog(0); }
-    },
-    [role]
+      socket.on(JOIN_CHANNEL_RESP, ({ status, error }) => {
+        if (status === 0) {
+          setOpenJoinChannelDialog(0);
+        } else {
+          setErrorMessage(error);
+          setOpenJoinChannelDialog(1);
+        }
+      })
+    }
   );
 
   return (
@@ -62,6 +73,9 @@ const ChannelPageView = (props) => {
         isOpen={openJoinChannelDialog}
         submit={submitJoinChannel}
         update={updateDisplayName} />
+      <Alert
+        clear={setErrorMessage} severity="error"
+        message={DisplayMessage(errorMessage)} />
     </Grid>
   );
 }

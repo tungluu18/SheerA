@@ -60,13 +60,17 @@ const removeNode = async (socket, channelId) => {
 
     if (!parent) {
       // seeder stop seeding their content
-      await redis.hdel(CHANNEL_ROUTE_ROOT, channelId);
+      await Promise.all([
+        redis.hdel(CHANNEL_ROUTE_ROOT, channelId),
+        redis.hdel(CHANNEL_ROUTE_SUBTREE_SIZE, socket.id),
+      ]);
       return;
     }
 
-    const [siblings, children] = await Promise.all([
+    const [siblings, children, _] = await Promise.all([
       _removeChild(parent, socket.id),
       redis.smembers(`${CHANNEL_ROUTE_CHILDREN}:${socket.id}`),
+      redis.hdel(CHANNEL_ROUTE_SUBTREE_SIZE, socket.id),
     ]);
 
     io.of('/channels').to(parent).emit(CHANNEL_ROUTE_UPDATE, {

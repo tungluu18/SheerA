@@ -14,24 +14,27 @@ import { addNode, removeNode } from 'utils/channel-routing';
 const ERROR_CHANNEL_DOES_NOT_EXIST = "channel-does-not-exist";
 
 const channelHooks = (io, socket, { disconnectHandlers }) => {
-  const setupSeederHook = () => {
+  const setupSeederHook = (channelId) => {
     socket.conn.on('packet', (packet) => {
       if (packet.type === 'ping') {
         usersDB.extendChannelLive(socket.id);
       }
     });
+
+    disconnectHandlers.push(() => channelsDB.removeChannel(channelId));
   }
 
-  socket.on(CREATE_CHANNEL, async ({ displayName }) => {
+  socket.on(CREATE_CHANNEL, async ({ displayName, channelName }) => {
     const channelId = uniqid();
     console.log(`${socket.id} is creating channel: ${channelId}`);
 
     try {
+      await channelsDB.createChannel({ channelId, channelName });
       await usersDB.joinChannel(socket.id, channelId, 'seeder', { displayName });
       await socket.join(channelId);
       socket.emit(CREATE_CHANNEL_RESP, { status: 0, data: { channelId, role: 'seeder', displayName } });
       await addNode(socket, channelId);
-      setupSeederHook();
+      setupSeederHook(channelId);
     } catch (error) {
       console.error(error);
       socket.emit(CREATE_CHANNEL_RESP, { status: 1, error: error.message });
@@ -42,7 +45,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
     console.log(`${socket.id} is joining channel: ${channelId}`);
 
     try {
-      if (!channelsDB.isExisted(channelId)) {
+      if (!await channelsDB.isExisted(channelId)) {
         socket.emit(JOIN_CHANNEL_RESP, { status: 1, error: ERROR_CHANNEL_DOES_NOT_EXIST });
         return;
       }
@@ -74,7 +77,7 @@ const channelHooks = (io, socket, { disconnectHandlers }) => {
 
   socket.on(SEND_MESSAGE, async ({ content, time }) => {
     const userInfo = await usersDB.getInfoInChannel(socket.id);
-    const message = {...userInfo, content, id: socket.id, time}
+    const message = { ...userInfo, content, id: socket.id, time };
     io.of('/channels').to(userInfo.channel).emit(RECEIVE_MESSAGE, message);
   });
 

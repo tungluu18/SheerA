@@ -21,6 +21,12 @@
   width: 15rem;
 }
 
+.sheera-logo-appbar {
+  content: url('/image/logo_appbar.png');
+  width: 2rem;
+  margin-left: 8px;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

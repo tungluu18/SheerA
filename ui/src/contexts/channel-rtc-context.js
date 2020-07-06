@@ -10,7 +10,6 @@ const simplePeerConfig = { iceServers }
 const ChannelRTCContext = React.createContext();
 
 const _getIdsFromUserInfos = (userInfos) => {
-  console.log(userInfos);
   return (userInfos || []).map(({ id }) => id);
 }
 

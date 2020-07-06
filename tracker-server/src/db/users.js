@@ -1,13 +1,13 @@
 import redis from 'db';
 import stringHash from 'string-hash';
 
-import { CHANNEL_SET, USER, } from 'utils/redis-keys';
+import { CHANNEL_MEMBERS, USER, } from 'utils/redis-keys';
 
 const ERROR_USER_ALREADY_JOINED_ANOTHER_CHANNEL = 'user-already-joined-another-channel';
 const ERROR_USER_DOES_NOT_JOIN_ANY_CHANNEL = 'user-does-not-join-any-channel';
 const ERROR_USER_IS_NOT_SEEDER = 'user-is-not-seeder';
 
-const CHANNEL_SET_TTL = 60;
+const CHANNEL_TTL = 60;
 
 const joinChannel = async (userId, channelId, role = 'viewer', { displayName } = {}) => {
   const joinedChannelId = await inChannel(userId);
@@ -26,7 +26,7 @@ const joinChannel = async (userId, channelId, role = 'viewer', { displayName } =
       'role', role,
       'displayName', displayName,
     ),
-    redis.sadd(`${CHANNEL_SET}:${channelId}`, userId),
+    redis.sadd(CHANNEL_MEMBERS`${channelId}`, userId),
   ]);
 }
 
@@ -34,7 +34,8 @@ const leaveChannel = async (userId, channelId) => {
   await Promise.all([
     redis.hdel(`${USER}:${userId}`, 'role'),
     redis.hdel(`${USER}:${userId}`, 'channel'),
-    redis.srem(`${CHANNEL_SET}:${channelId}`, userId),
+    redis.hdel(`${USER}:${userId}`, 'displayName'),
+    redis.srem(CHANNEL_MEMBERS`${channelId}`, userId),
   ]);
 }
 
@@ -57,7 +58,7 @@ const extendChannelLive = async (userId) => {
     const { role, channel } = await getInfoInChannel(userId);
     if (!channel) { throw new Error(ERROR_USER_DOES_NOT_JOIN_ANY_CHANNEL); }
     if (role !== 'seeder') { throw Error(ERROR_USER_IS_NOT_SEEDER); }
-    redis.expire(`${CHANNEL_SET}:${channel}`, CHANNEL_SET_TTL);
+    redis.expire(CHANNEL_MEMBERS`${channel}`, CHANNEL_TTL);
   } catch (error) {
     console.log(error);
   }

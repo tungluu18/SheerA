@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, } from 'react';
 import { useHistory } from 'react-router-dom';
 
 
 import Button from 'commons/Button';
+import Alert from 'commons/Alert';
 import socket from 'services/socket';
 import { CREATE_CHANNEL, CREATE_CHANNEL_RESP } from 'services/socket';
+import { DisplayMessage } from 'utils/constants';
 
 import Grid from '@material-ui/core/Grid';
-import Alert from '@material-ui/lab/Alert';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -56,7 +57,6 @@ const ChannelPageCreate = () => {
         if (status === 0) {
           history.push(`/channels/${data.channelId}`);
         } else {
-          console.log(CREATE_CHANNEL_RESP, error);
           setMessage(error);
           setCreateChannel(1);
         }
@@ -86,15 +86,9 @@ const ChannelPageCreate = () => {
           update={updateChannelInfo}
           submit={submitChannelInfo}
           isOpen={createChannel} />
-        {!!message
-          ? <Alert
-            severity="error"
-            onClose={() => setMessage(undefined)}
-          >
-            {message}
-          </Alert>
-          : null
-        }
+        <Alert
+          clear={setMessage} severity="error"
+          message={DisplayMessage(message)} />
       </Grid>
     </>
   );

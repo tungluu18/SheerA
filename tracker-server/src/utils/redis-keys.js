@@ -1,8 +1,14 @@
 export const USER = "USER";
 
-export const CHANNEL_SET = "CHANNEL-SET";
-export const CHANNEL_LIST = "CHANNEL-LIST";
-export const CHANNEL_USERS = "CHANNEL-USERS";
+/**
+ *@Datatype:
+ *  CHANNEL_NAME: String
+ *  CHANNEL_MEMBERS: Set
+ *  CHANNEL_MAP_NAME_ID: Hash
+ */
+export const CHANNEL_MEMBERS = (_, channelId) => `CHANNEL:${channelId}:MEMBERS`;
+export const CHANNEL_NAME = (_, channelId) => `CHANNEL:${channelId}:NAME`;
+export const CHANNEL_MAP_NAME_ID = "CHANNEL-MAP-NAME-ID";
 
 /**
  *@Datatype:

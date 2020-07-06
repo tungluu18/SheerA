@@ -14,12 +14,14 @@ import DataTransferPage from 'pages/data-transfer-page/DataTransferPage';
 import ChannelPage from 'pages/channel-page/ChannelPage';
 
 import { makeStyles } from '@material-ui/core/styles';
+import ChannelPageCreate from 'pages/channel-page/ChannelPageCreate';
 
 const useStyles = makeStyles(theme => ({
   root: { flexGrow: 1 },
   appBar: {
     background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     height: '3rem',
+    justifyContent: 'center',
   },
 }));
 
@@ -28,7 +30,9 @@ const App = (props) => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static" className={classes.appBar} />
+      <AppBar position="static" className={classes.appBar}>
+        <a href="/" className="sheera-logo-appbar" />
+      </AppBar>
       <Router>
         <Switch>
           <Route exact path='/'>
